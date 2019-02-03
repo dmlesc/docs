@@ -1,0 +1,97 @@
+=====
+ lxd
+=====
+
+apt remove --purge lxd* lxd-client*
+snap install lxd
+lxd --version
+  3.9
+
+lxd init
+
+lxc profile device set default root size 20GB
+
+lxc launch ubuntu:18.04 base
+lxc config set base limits.cpu 2
+lxc config set base limits.memory 2GB
+lxc exec base bash
+
+apt remove --purge lxd* lxc*
+apt update
+apt upgrade
+apt autoremove
+
+adduser dml
+visudo
+  dml ALL=(ALL) NOPASSWD: ALL
+deluser ubuntu --remove-home
+su - dml
+mkdir .ssh
+cd .ssh
+nano authorized_keys
+  [put public key]
+chmod 600 authorized_keys
+exit
+
+[ install docker ]
+
+exit
+
+lxc stop base
+
+lxc copy base docker0 --container-only -c security.nesting=true
+lxc start docker0
+lxc exec docker0 bash
+
+deluser ubuntu --remove-home
+nano /etc/hosts
+  127.0.1.1 docker0
+
+
+
+lxc config device add docker0 root disk pool=default path=/ size=50GB
+
+lxc config device add trans0 trans-data disk source=/vol0/trans-data path=/var/lib/transmission-daemon/downloads
+lxc config device remove trans0 trans-data
+
+lxc storage volume create default trans0_data size=50GB
+lxc storage volume attach default trans0_data trans0 trans0_data /var/lib/transmission-daemon/downloads
+lxc storage volume detach default trans0_data trans0
+
+lxc storage volume set default trans0_data size 50GB
+
+lxc storage create vol1 zfs source=vol1
+
+lxc storage create data zfs size=500GB
+
+lxc storage list
+
+lxc copy base es --container-only -s data
+
+lxc config device add docker0 git disk path=/home/dml/git source=/home/dml/git
+
+
+=====================
+ Container Migration
+=====================
+https://stgraber.org/2016/04/12/lxd-2-0-remote-hosts-and-container-migration-612/
+
+Remote
+  lxc config set core.https_address [::]:8443
+  lxc config set core.trust_password
+
+Local
+  lxc config set core.https_address [::]:8443
+  lxc remote add esc0 10.0.0.46
+  lxc remote list
+  lxc remote get-default
+
+  lxc copy hb esc0: --mode push
+
+  lxc move base0 mac:
+  lxc move prmths0 mac:
+  lxc move vis0 mac:
+  lxc move nginx0 mac:
+
+
+lxc config unset core.https_address

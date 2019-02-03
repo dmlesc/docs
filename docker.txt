@@ -1,0 +1,102 @@
+==============
+ installation
+==============
+
+  https://docs.docker.com/install/linux/docker-ce/ubuntu
+
+  apt remove docker docker-engine docker.io
+  apt install apt-transport-https ca-certificates curl software-properties-common
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  apt-key fingerprint 0EBFCD88
+
+  add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  apt update
+  apt install docker-ce
+  docker --version
+    Docker version 18.09.0, build 4d60db4
+
+  curl -L "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  chmod +x /usr/local/bin/docker-compose
+  docker-compose --version
+    docker-compose version 1.23.2, build 1110ad01
+
+  usermod -aG docker dml
+
+
+=======
+ build
+=======
+
+  Dockerfile
+    # Use an official Python runtime as a parent image
+    FROM python:2.7-slim
+
+    # Set the working directory to /app
+    WORKDIR /app
+
+    # Copy the current directory contents into the container at /app
+    COPY . /app
+
+    # Install any needed packages specified in requirements.txt
+    RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+    # Make port 80 available to the world outside this container
+    EXPOSE 80
+
+    # Define environment variable
+    ENV NAME World
+
+    # Run app.py when the container launches
+    CMD ["python", "app.py"]
+
+
+  docker build -t test_app .
+  docker run -p 4000:80 test_app
+
+  http://docker0:4000/
+
+  docker run -d -p 4000:80 test_app
+
+  docker login
+
+  # docker tag image username/repository:tag
+  # docker push username/repository:tag
+  # docker run -p 4000:80 username/repository:tag
+
+  docker tag test_app dmlesc/test_app:part2
+  docker push dmlesc/test_app:part2
+
+
+=====
+ LXD
+=====
+
+  lxc copy base docker0 --container-only -c security.nesting=true
+  lxc config set docker0 limits.cpu 2
+  lxc config set docker0 limits.memory 2GB
+  lxc start docker0
+  lxc exec docker0 bash
+
+  [install docker]
+
+  mkdir /etc/systemd/system/containerd.service.d/
+  cd /etc/systemd/system/containerd.service.d/
+  nano override.conf
+    [Service]
+    ExecStartPre=
+
+  systemctl daemon-reload
+  systemctl restart containerd.service
+  systemctl restart docker.service
+
+
+==========
+ commands
+==========
+
+  docker stop $(docker ps -a -q)
+  docker rm $(docker ps -a -q)
+  docker container rm $(docker container ls -a -q)
+
+  docker system prune -a
+  docker volume prune -a

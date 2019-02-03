@@ -1,0 +1,57 @@
+===============
+ node_exporter
+===============
+
+
+========
+ 0.17.0
+========
+
+cd /opt
+wget https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-amd64.tar.gz
+tar xzvf node_exporter-0.17.0.linux-amd64.tar.gz
+nano /lib/systemd/system/node_exporter.service
+  [Unit]
+  Description=node_exporter
+  After=network.target
+
+  [Service]
+  User=root
+  ExecStart=/opt/node_exporter-0.17.0.linux-amd64/node_exporter --no-collector.arp --no-collector.bcache --no-collector.conntrack --no-collector.edac --no-collector.entropy --no-collector.hwmon --no-collector.infiniband --no-collector.ipvs --no-collector.loadavg --no-collector.mdadm --no-collector.nfs --no-collector.nfsd --no-collector.netstat --no-collector.sockstat --no-collector.stat --no-collector.textfile --no-collector.time  --no-collector.timex --no-collector.uname --no-collector.vmstat --no-collector.wifi --no-collector.xfs
+  WorkingDirectory=/opt/node_exporter-0.17.0.linux-amd64
+  Restart=on-failure
+
+  [Install]
+  WantedBy=multi-user.target
+
+systemctl enable node_exporter
+systemctl daemon-reload
+service node_exporter start
+
+curl localhost:9100/metrics
+rm node_exporter-0.17.0.linux-amd64.tar.gz
+
+
+Disable
+  arp
+  bcache
+  conntrack
+  edac
+  entropy
+  hwmon
+  infiniband
+  ipvs
+  loadavg
+  mdadm
+  netstat
+  nfs
+  nfsd
+  sockstat
+  stat
+  textfile
+  time
+  timex
+  uname
+  vmstat
+  wifi
+  xfs

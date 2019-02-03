@@ -1,0 +1,164 @@
+
+=====
+ KVM
+=====
+
+#lxc storage create vol0 zfs source=vol0
+
+mkdir /vol0/kvm
+zfs create vol0/kvm
+zfs set mountpoint=/vol0/kvm vol0/kvm
+mkdir /vol0/kvm/img
+mkdir /vol0/kvm/iso
+cd /vol0/kvm/iso
+wget http://mirrors.nycbug.org/pub/opnsense/releases/18.7/OPNsense-18.7-OpenSSL-dvd-amd64.iso.bz2
+bunzip2 OPNsense-18.7-OpenSSL-dvd-amd64.iso.bz2
+
+
+apt install qemu-kvm libvirt-bin ubuntu-vm-builder virtinst
+
+virt-install -v \
+  --name=opnsense \
+  --vcpus=2 \
+  --memory=2048 \
+  --disk path=/vol0/kvm/img/opnsense.img,bus=virtio,size=40 \
+  --cdrom=/vol0/kvm/iso/OPNsense-18.7-OpenSSL-dvd-amd64.iso \
+  --network default,model=virtio \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole
+
+[VNC to console]
+
+login: installer
+pass:  opnsense
+
+[install all defaults, poweroff]
+
+
+virsh edit opnsense
+  [delete bridge network]
+
+  add
+    <interface type='direct' trustGuestRxFilters='yes'>
+      <source dev='enp3s0f0' mode='vepa'/>
+      <model type='virtio'/>
+    </interface>
+    <interface type='direct' trustGuestRxFilters='yes'>
+      <source dev='enp3s0f1' mode='vepa'/>
+      <model type='virtio'/>
+    </interface>
+
+virsh start opnsense
+
+[VNC to console]
+
+login: root
+
+1) Assign Interfaces
+  WAN --> vtnet0
+  LAN --> vtnet1
+
+2) Set interface IP address
+  LAN: 10.0.0.1
+  Subnet: 24
+  Enable DHCP server: y
+  Start address: 10.0.0.10
+  End address: 10.0.0.100
+
+[ connect wired to new LAN ]
+
+https://10.0.0.1/
+  login
+  Wizard
+    Hostname: opnsense
+    Domain: local
+    Timezone: America/Denver
+    WAN MAC Address: 90:6e:bb:7a:c6:0b
+
+  Interfaces > Settings
+    Disable all off-loading settings in Interfaces->Settings
+    https://wiki.opnsense.org/manual/virtuals.html
+
+  System
+    Settings > Administration
+      Web GUI
+        [*] Enable access log
+        Listen Interfaces: LAN
+      Secure Shell
+        [*] Enable Secure Shell
+        SSH port: 22
+        Listen Interfaces: LAN
+
+    Access > Users > Add
+      Login shell: /bin/sh
+      Group Memberships: admins
+      Authorized keys: paste
+
+  Power Off
+
+
+virsh edit opnsense
+    [change WAN MAC address to whatever is trusted by your ISP]
+
+    <interface type='direct' trustGuestRxFilters='yes'>
+      <mac address='90:6e:bb:7a:c6:0b'/>
+      <source dev='eno1' mode='vepa'/>
+      <model type='virtio'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/>
+    </interface>
+    <interface type='bridge'>
+      <mac address='52:54:00:8f:0a:8e'/>
+      <source bridge='br0'/>
+      <model type='virtio'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0'/>
+    </interface>
+
+virsh autostart opnsense
+virsh start opnsense
+
+
+Portal
+  Services > Intrusion Detection > Administration
+    Settings
+      [*] Enabled
+      [*] Enable syslog alerts
+      Pattern matcher: Hyperscan
+      Interfaces: WAN
+      Apply
+
+    Download
+      Enable:
+        abuse.ch/*
+      Download & Update Rules
+      Edit all
+        Input Filter: Change all alerts to drop actions
+
+
+Console
+  login: root
+  8) Shell
+    visudo
+      %wheel ALL=(ALL) NOPASSWD: ALL
+    pw group mod wheel -m dml
+
+ssh opnsense
+sudo su -
+8) Shell
+
+pkg install node_exporter
+
+vi /etc/rc.conf.d/node_exporter
+  node_exporter_enable="YES"
+  node_exporter_listen_address=10.0.0.1:9100
+
+service node_exporter start
+exit
+
+
+prometheus.yml
+  scrape_configs:
+    ...
+    - job_name: 'freebsd'
+      static_configs:
+        - targets:
+          - opnsense:9100

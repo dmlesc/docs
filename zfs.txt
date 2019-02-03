@@ -1,0 +1,30 @@
+=====
+ ZFS
+=====
+
+https://wiki.ubuntu.com/ZFS
+https://wiki.ubuntu.com/Kernel/Reference/ZFS
+
+apt install zfsutils-linux
+
+zpool create -f vol0 /dev/sda /dev/sdc /dev/sdd /dev/sde
+zpool create -f vol0 /dev/disk/by-id/ata-... /dev/disk/by-id/ata-... /dev/disk/by-id/ata-... /dev/disk/by-id/ata-...
+zpool create -f vol0 mirror /dev/disk/by-id/ata-... /dev/disk/by-id/ata-...
+zpool create -f vol0 raidz1 /dev/disk/by-id/ata-... /dev/disk/by-id/ata-... /dev/disk/by-id/ata-...
+
+zpool add -f vol0 cache /dev/disk/by-id/ata-...
+
+zfs set compression=lz4 vol0
+zfs get compression vol0
+zfs get compressratio
+
+zpool list
+zpool status
+
+zfs create vol0/test
+
+zfs set mountpoint=/mnt/vol0 vol0
+
+zpool import vol0
+
+zpool iostat vol0

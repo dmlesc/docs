@@ -1,0 +1,7 @@
+=====
+ Git
+=====
+
+ssh -T git@github.com
+git clone git://github.com/dmlesc/repo
+git remote set-url origin git@github.com:dmlesc/repo.git

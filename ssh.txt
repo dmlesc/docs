@@ -1,0 +1,23 @@
+Host lxdhost
+    ForwardAgent yes
+    Port 12345
+    User schmoozer
+    HostName 1.2.3.4
+    IdentityFile ~/.ssh/id_lxdhost
+
+Host l.*
+    ForwardAgent yes
+    KeepAlive yes
+    User schmoozer
+    Port 43210
+    ProxyCommand ssh -p 12345 schmoozer@lxdhost nc %h %p
+    IdentityFile ~/.ssh/id_rsa
+
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa
+
+
+Host d.0
+  ForwardAgent yes
+  User dml
+  HostName esc0
+  IdentityFile ~/.ssh/id_rsa

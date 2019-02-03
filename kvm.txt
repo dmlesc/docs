@@ -1,0 +1,102 @@
+=====
+ KVM
+=====
+
+=======
+ 18.04
+=======
+
+mkdir /vol0/kvm
+zfs create vol0/kvm
+zfs set mountpoint=/vol0/kvm vol0/kvm
+mkdir /vol0/kvm/img
+mkdir /vol0/kvm/iso
+cd /vol0/kvm/iso
+
+apt install qemu-kvm libvirt-bin ubuntu-vm-builder virtinst
+
+virt-install -v \
+  --name udesk0 \
+  --vcpus 2 \
+  --memory 2048 \
+  --disk path=/vol0/kvm/img/udesk0.img,bus=virtio,size=100 \
+  --cdrom /vol0/kvm/iso/ubuntu-18.04.1-desktop-amd64.iso \
+  --network=default,model=virtio \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole
+
+
+virsh net-list --all
+
+brctl show
+
+virsh help network
+
+qemu-img create -f raw /vol0/kvm/trans0_data0.img 100G
+chmod 600 trans0_data0.img
+chown libvirt-qemu:kvm trans0_data0.img
+virsh attach-disk trans0 /vol0/kvm/trans0_data0.img vdb --live --persistent
+
+ssh trans0
+fdisk /dev/vdb
+mkfs.ext4 /dev/vdb1
+mkdir /mnt/data0
+mount /dev/vdb1 /mnt/data0
+nano /etc/fstab
+  /dev/vdb1   /mnt/data0   ext4   defaults   0 0
+
+
+virsh setmaxmem dml-util 3G --config
+virsh setmem dml-util 3G --config
+
+
+
+--- windows ---
+
+virt-install -v \
+  --name win \
+  --vcpus 2 \
+  --memory 4096 \
+  --disk path=/vol0/kvm/win.img,size=40 \
+  --cdrom /vol0/iso/en_windows_10_multi-edition_version_1709_updated_dec_2017_x64_dvd_100406711.iso \
+  --network bridge=br0 \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole
+
+  <disk type='file' device='cdrom'>
+    <driver name='qemu' type='raw'/>
+    <source file='/vol0/iso/en_windows_10_multi-edition_version_1709_updated_dec_2017_x64_dvd_100406711.iso'/>
+    <target dev='hdb' bus='ide'/>
+    <readonly/>
+    <address type='drive' controller='0' bus='0' target='0' unit='1'/>
+  </disk>
+
+virt-install -v \
+  --name win \
+  --vcpus 2 \
+  --memory 4096 \
+  --disk path=/vol0/kvm/img/win.img \
+  --network bridge=br0 \
+  --import \
+  --graphics vnc,listen=0.0.0.0 \
+#  --graphics vnc,listen=127.0.0.1 \
+  --noautoconsole
+
+
+--- USB 2.0 passthru ---
+
+lsusb
+
+nano /vol0/kvm/slim.xml
+  <hostdev mode='subsystem' type='usb'>
+    <source>
+      <vendor id='0x0bc2'/>
+      <product id='0xab00'/>
+    </source>
+  </hostdev>
+
+virsh attach-device win /vol0/kvm/usb/slim.xml
+virsh detach-device win /vol0/kvm/usb/slim.xml
+
+virsh attach-device win /vol0/kvm/usb/mimosa.xml
+virsh detach-device win /vol0/kvm/usb/mimosa.xml

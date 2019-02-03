@@ -1,0 +1,33 @@
+======
+ wifi
+======
+
+apt install wpasupplicant wireless-tools
+iwconfig
+  wls37b1   IEEE 802.11bgn  ESSID:off/any
+            Mode:Managed  Access Point: Not-Associated   Tx-Power=0 dBm
+            Retry short limit:7   RTS thr:off   Fragment thr:off
+            Encryption key:off
+            Power Management:on
+wpa_passphrase "paco" > /etc/wpa_supplicant.conf
+  enter passphrase
+cd /etc/network
+cp interfaces interfaces.bak
+nano interfaces
+  auto wls37b1
+  iface wls37b1 inet dhcp
+  wpa-driver nl80211
+  wpa-conf /etc/wpa_supplicant.conf
+
+  or static:
+
+  auto wls37b1
+  iface wls37b1 inet static
+  address 192.168.2.33
+  netmask 255.255.255.0
+  gateway 192.168.2.1
+  wpa-driver nl80211
+  wpa-conf /etc/wpa_supplicant.conf
+  dns-nameservers 8.8.8.8 192.168.2.1
+
+ifup wls37b1

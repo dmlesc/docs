@@ -1,0 +1,208 @@
+
+https://www.raspberrypi.org/documentation/configuration/wireless/access-point.md
+
+
+Oct 24 22:20:19 esc1 hostapd[1421]: random: Only 15/20 bytes of strong random data available from /dev/random
+Oct 24 22:20:19 esc1 hostapd[1421]: random: Not enough entropy pool available for secure operations
+Oct 24 22:20:19 esc1 hostapd[1421]: WPA: Not enough entropy in random pool for secure operations - update keys later when the first station
+
+
+cat /proc/sys/kernel/random/entropy_avail
+apt install haveged
+systemctl status haveged
+
+systemctl restart hostapd
+systemctl status hostapd
+
+
+
+#2 raspi ================================================
+
+apt install hostapd bridge-utils
+systemctl stop hostapd
+
+nano /etc/dhcpcd.conf
+  denyinterfaces wlan0
+
+brctl addbr br0
+brctl addif br0 eth0
+
+nano /etc/network/interfaces
+  auto br0
+  iface br0 inet manual
+  bridge_ports eth0 wlan0
+
+nano /etc/hostapd/hostapd.conf
+  interface=wlan0
+  bridge=br0
+  #driver=nl80211
+  ssid=buttfart
+  hw_mode=g
+  channel=7
+  wmm_enabled=0
+  macaddr_acl=0
+  auth_algs=1
+  ignore_broadcast_ssid=0
+  wpa=2
+  wpa_passphrase=asdfasdfasdf
+  wpa_key_mgmt=WPA-PSK
+  wpa_pairwise=TKIP
+  rsn_pairwise=CCMP
+
+nano /etc/default/hostapd
+  DAEMON_CONF="/etc/hostapd/hostapd.conf"
+
+
+hw_mode
+  a = IEEE 802.11a (5 GHz)
+  b = IEEE 802.11b (2.4 GHz)
+  g = IEEE 802.11g (2.4 GHz)
+  ad = IEEE 802.11ad (60 GHz)
+
+
+
+#3 esc0 ===============================================
+
+nano /etc/netplan/50-cloud-init.yaml
+  network:
+    version: 2
+    renderer: networkd
+    ethernets:
+      ...
+
+      wlp6s0:
+        dhcp4: no
+        dhcp6: no
+        optional: true
+
+    bridges:
+      br0:
+        interfaces: [..., wlp6s0]
+        dhcp4: true
+        dhcp6: no
+
+netplan generate
+netplan apply
+
+
+apt install hostapd
+
+nano /etc/hostapd/hostapd.conf
+  interface=wlp6s0
+  bridge=br0
+  #driver=nl80211
+  ssid=stankhands
+  hw_mode=g
+  channel=7
+  wmm_enabled=0
+  macaddr_acl=0
+  auth_algs=1
+  ignore_broadcast_ssid=0
+  wpa=2
+  wpa_passphrase=asdfasdfasdf
+  wpa_key_mgmt=WPA-PSK
+  wpa_pairwise=TKIP
+  rsn_pairwise=CCMP
+
+nano /etc/default/hostapd
+  DAEMON_CONF="/etc/hostapd/hostapd.conf"
+
+touch /run/hostapd.pid
+systemctl unmask hostapd
+systemctl enable hostapd
+systemctl start hostapd
+
+
+#4 esc1 ===============================================
+
+nano /etc/netplan/50-cloud-init.yaml
+  network:
+    version: 2
+    renderer: networkd
+    ethernets:
+      ...
+
+      wlp12s0:
+        dhcp4: no
+        dhcp6: no
+        optional: true
+
+    bridges:
+      br0:
+        interfaces: [..., wlp6s0]
+        dhcp4: true
+        dhcp6: no
+
+netplan generate
+netplan apply
+
+
+apt install hostapd
+
+nano /etc/hostapd/hostapd.conf
+  #### Interface configuration ####
+  interface=wlp12s0
+  bridge=br0
+  driver=nl80211
+  ##### IEEE 802.11 related configuration #####
+  ssid=funkfeet
+  hw_mode=g
+  channel=1
+  auth_algs=1
+  wmm_enabled=1
+  ##### IEEE 802.11n related configuration #####
+  ieee80211n=1
+  ht_capab=[HT40+][SHORT-GI-40][RX-STBC1][DSSS_CK-40][MAX-AMSDU-3839]
+  ##### WPA/IEEE 802.11i configuration #####
+  wpa=2
+  wpa_key_mgmt=WPA-PSK
+  rsn_pairwise=CCMP
+  wpa_passphrase=asdfasdfasdf
+
+
+  interface=wlp6s0
+  bridge=br0
+  #driver=nl80211
+  ssid=stankhands
+  hw_mode=g
+  channel=7
+  wmm_enabled=0
+  macaddr_acl=0
+  auth_algs=1
+  ignore_broadcast_ssid=0
+  wpa=2
+  wpa_passphrase=asdfasdfasdf
+  wpa_key_mgmt=WPA-PSK
+  wpa_pairwise=TKIP
+  rsn_pairwise=CCMP
+
+
+nano /etc/default/hostapd
+  DAEMON_CONF="/etc/hostapd/hostapd.conf"
+
+touch /run/hostapd.pid
+systemctl unmask hostapd
+systemctl enable hostapd
+systemctl start hostapd
+
+=================================================================
+
+apt install wireless-tools
+
+
+lscpi
+lspci -vv -s 0b:00.0
+
+apt install wireless-tools
+iwconfig wlan0
+
+
+iw list | grep "Supported interface modes" -A 8
+
+iw wlan0 info
+
+iwlist wlan0
+
+apt install wavemon
+
+sudo iwlist wlan0 scan | grep Frequency | sort | uniq -c | sort -n

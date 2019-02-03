@@ -1,0 +1,44 @@
+
+https://www.freshports.org/sysutils/node_exporter/
+
+
+cd /vol0/kvm/iso
+wget https://download.freebsd.org/ftp/releases/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-amd64-dvd1.iso
+
+
+virt-install -v \
+  --name=freebsd11 \
+  --vcpus=2 \
+  --memory=2048 \
+  --disk path=/vol0/kvm/img/freebsd11.img,bus=virtio,size=20 \
+  --cdrom=/vol0/kvm/iso/FreeBSD-11.1-RELEASE-amd64-dvd1.iso \
+  --network default,model=virtio \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole
+
+[VNC to console, install OS]
+
+ssh freebsd11
+su root
+
+pkg install node_exporter
+
+vi /etc/rc.conf.d/node_exporter
+  node_exporter_enable="YES"
+  node_exporter_listen_address=10.0.0.1:9100
+
+service node_exporter start
+
+
+[ /usr/local/etc/rc.d/node_exporter ]
+
+
+scrape_configs:
+  ...
+  - job_name: 'freebsd'
+    static_configs:
+      - targets:
+        - freebsd11:9100
+
+
+{job="freebsd",instance="freebsd11:9100"}

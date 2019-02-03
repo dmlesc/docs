@@ -1,0 +1,23 @@
+===========
+ handbrake
+===========
+
+lxc copy base hb --container-only
+lxc config set hb limits.cpu 8
+lxc config set hb limits.memory 1GB
+lxc start hb
+lxc exec hb bash
+
+deluser ubuntu --remove-home
+
+add-apt-repository ppa:stebbins/handbrake-releases
+apt update
+#apt install handbrake-gtk
+apt install handbrake-cli
+
+HandBrakeCLI -Z "Apple 720p30 Surround" -i test.mp4 -o test.m4v
+HandBrakeCLI -Z "Apple 1080p30 Surround" -i test.mp4 -o test.m4v
+
+
+apt install lm-sensors
+sensors-detect
