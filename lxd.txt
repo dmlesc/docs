@@ -2,10 +2,10 @@
  lxd
 =====
 
-apt remove --purge lxd* lxd-client*
+apt remove --purge lxd* lxc*
 snap install lxd
 lxd --version
-  3.9
+  3.10
 
 lxd init
 

@@ -21,3 +21,9 @@ HandBrakeCLI -Z "Apple 1080p30 Surround" -i test.mp4 -o test.m4v
 
 apt install lm-sensors
 sensors-detect
+
+
+zfs create vol0/hb
+mkdir /vol0/hb
+zfs set mountpoint=/vol0/hb vol0/hb
+chown dml:dml /vol0/hb

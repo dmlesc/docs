@@ -6,6 +6,8 @@
  18.04
 =======
 
+apt install qemu-kvm libvirt-bin ubuntu-vm-builder virtinst
+
 mkdir /vol0/kvm
 zfs create vol0/kvm
 zfs set mountpoint=/vol0/kvm vol0/kvm
@@ -13,7 +15,6 @@ mkdir /vol0/kvm/img
 mkdir /vol0/kvm/iso
 cd /vol0/kvm/iso
 
-apt install qemu-kvm libvirt-bin ubuntu-vm-builder virtinst
 
 virt-install -v \
   --name udesk0 \

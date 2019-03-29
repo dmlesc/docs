@@ -5,24 +5,24 @@
 
 #lxc storage create vol0 zfs source=vol0
 
+apt install qemu-kvm libvirt-bin ubuntu-vm-builder virtinst
+
 mkdir /vol0/kvm
 zfs create vol0/kvm
 zfs set mountpoint=/vol0/kvm vol0/kvm
 mkdir /vol0/kvm/img
 mkdir /vol0/kvm/iso
 cd /vol0/kvm/iso
-wget http://mirrors.nycbug.org/pub/opnsense/releases/18.7/OPNsense-18.7-OpenSSL-dvd-amd64.iso.bz2
-bunzip2 OPNsense-18.7-OpenSSL-dvd-amd64.iso.bz2
+wget http://mirrors.nycbug.org/pub/opnsense/releases/19.1/OPNsense-19.1-OpenSSL-dvd-amd64.iso.bz2
+bunzip2 OPNsense-19.1-OpenSSL-dvd-amd64.iso.bz2
 
-
-apt install qemu-kvm libvirt-bin ubuntu-vm-builder virtinst
 
 virt-install -v \
   --name=opnsense \
   --vcpus=2 \
   --memory=2048 \
   --disk path=/vol0/kvm/img/opnsense.img,bus=virtio,size=40 \
-  --cdrom=/vol0/kvm/iso/OPNsense-18.7-OpenSSL-dvd-amd64.iso \
+  --cdrom=/vol0/kvm/iso/OPNsense-19.1-OpenSSL-dvd-amd64.iso \
   --network default,model=virtio \
   --graphics vnc,listen=0.0.0.0 \
   --noautoconsole
@@ -33,7 +33,6 @@ login: installer
 pass:  opnsense
 
 [install all defaults, poweroff]
-
 
 virsh edit opnsense
   [delete bridge network]
@@ -162,3 +161,7 @@ prometheus.yml
       static_configs:
         - targets:
           - opnsense:9100
+
+
+dml@esc0:~$ groups
+dml adm cdrom sudo dip plugdev lxd libvirt

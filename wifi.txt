@@ -4,12 +4,13 @@
 
 apt install wpasupplicant wireless-tools
 iwconfig
-  wls37b1   IEEE 802.11bgn  ESSID:off/any
-            Mode:Managed  Access Point: Not-Associated   Tx-Power=0 dBm
-            Retry short limit:7   RTS thr:off   Fragment thr:off
-            Encryption key:off
-            Power Management:on
-wpa_passphrase "paco" > /etc/wpa_supplicant.conf
+wlp6s0    IEEE 802.11  ESSID:off/any
+          Mode:Managed  Access Point: Not-Associated   Tx-Power=20 dBm
+          Retry short limit:7   RTS thr:off   Fragment thr:off
+          Encryption key:off
+          Power Management:on
+
+wpa_passphrase "paco" > /etc/wpa_supplicant/paco.conf
   enter passphrase
 cd /etc/network
 cp interfaces interfaces.bak
@@ -17,7 +18,7 @@ nano interfaces
   auto wls37b1
   iface wls37b1 inet dhcp
   wpa-driver nl80211
-  wpa-conf /etc/wpa_supplicant.conf
+  wpa-conf /etc/wpa_supplicant/paco.conf
 
   or static:
 
@@ -31,3 +32,61 @@ nano interfaces
   dns-nameservers 8.8.8.8 192.168.2.1
 
 ifup wls37b1
+
+
+
+network:
+  version: 2
+  renderer: networkd
+
+  wifis:
+    wlp6s0:
+      dhcp4: true
+      dhcp6: no
+      access-points:
+        "paco":
+          password: "**********"
+
+
+
+apt install wireless-tools
+
+lscpi
+lspci |grep -i wireless
+  Qualcomm Atheros QCA986x/988x 802.11ac Wireless Network Adapter
+lspci -vv -s 04:00.0
+
+iwconfig
+
+iw
+iw help
+iw list
+iw list | grep "Supported interface modes" -A 8
+iw wlp4s0 info
+
+
+iwlist  [interface] scanning [essid NNN] [last]
+        [interface] frequency
+        [interface] channel
+        [interface] bitrate
+        [interface] rate
+        [interface] encryption
+        [interface] keys
+        [interface] power
+        [interface] txpower
+        [interface] retry
+        [interface] ap
+        [interface] accesspoints
+        [interface] peers
+        [interface] event
+        [interface] auth
+        [interface] wpakeys
+        [interface] genie
+        [interface] modulation
+
+iwlist wlp4s0 ...
+
+sudo iwlist wlp3s0 scan | grep Frequency | sort | uniq -c | sort -n
+sudo iwlist wlp3s0 scan | grep \(Channel | sort | uniq -c | sort -n
+
+apt install wavemon

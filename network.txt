@@ -52,10 +52,27 @@ network:
   version: 2
   renderer: networkd
   ethernets:
-    eno1:
+    enp2s0:
       dhcp4: true
       dhcp6: no
       optional: true
+
+    enp3s0:
+      dhcp4: true
+      dhcp6: no
+      optional: true
+
+  bridges:
+    br0:
+      interfaces: [enp2s0, enp3s0]
+      dhcp4: true
+      dhcp6: no
+
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
     enp3s0f0:
       dhcp4: true
       dhcp6: no
@@ -75,10 +92,18 @@ network:
 
   bridges:
     br0:
-      interfaces: [eno1, enp3s0f0, enp3s0f1, enp4s0f0, enp4s0f1]
+      interfaces: [enp3s0f0, enp3s0f1, enp4s0f0, enp4s0f1]
       dhcp4: true
       dhcp6: no
 
 
 nano /lib/systemd/system/systemd-networkd-wait-online.service
   ExecStart=/lib/systemd/systemd-networkd-wait-online --timeout=1
+
+
+netplan generate
+netplan apply
+
+
+
+nmap -sV -p 22 192.168.2.0-255
