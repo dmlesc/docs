@@ -38,7 +38,6 @@ Disable
   conntrack
   edac
   entropy
-  hwmon
   infiniband
   ipvs
   loadavg
@@ -55,3 +54,10 @@ Disable
   vmstat
   wifi
   xfs
+
+node_hwmon_chip_names
+node_hwmon_sensor_label
+node_hwmon_temp_celsius
+node_hwmon_temp_crit_alarm_celsius
+node_hwmon_temp_crit_celsius
+node_hwmon_temp_max_celsius

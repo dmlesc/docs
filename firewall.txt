@@ -27,10 +27,11 @@ nano /etc/netplan/50-cloud-init.yaml
         dhcp4: true
         dhcp6: no
 
-reboot
-
 nano /lib/systemd/system/systemd-networkd-wait-online.service
   ExecStart=/lib/systemd/systemd-networkd-wait-online --timeout=1
+
+reboot
+
 
 apt install zfsutils-linux
 zpool create -f vol0 /dev/disk/by-id/ata-... /dev/disk/by-id/ata-...
