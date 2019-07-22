@@ -6,67 +6,9 @@ HandBrakeCLI -Z "Apple 1080p30 Surround" -i dbs.mkv -o dbs.m4v
 esc:  41.14 fps
 esc0: 38.95 fps
 
-water cooler - fan x1
-  3.8: 41.23 - 58C
-  4.0: 42.07 - 60C
-  4.2: 44.26 - 64C
-  4.3: 45.60 - 64C
+4670K - MSI Z87i
+  4.0: 48.59 - 65C
+  4.3: 50.31 - 67.2C
 
-big shiruken 3
-  fans out - cover off
-    3.8: 40.75 - 62C
-    4.0: 43.04 - 64C
-    4.2: 38.00 - 65C
-    4.3: 45.35 - 65C
-
-  fans out - cover on
-    3.8: 40.75 - 75C
-    4.3: 42.74 - 80C
-
-  fans in - cover off
-    3.8: 40.14 - 63C
-    4.3: 43.67 - 67C
-
-  fans in - cover on
-    3.8: 40.91 - 73C
-    4.3: 45.18 - 78C
-
-noctua 120mm
-  fans in - cover off
-    3.8: 40.98 - 65C
-    4.0: 38.23 - 68C
-    4.3: 49.67 - 69C
-
-  fans in - cover on
-    3.8: 40.98 - 92C
-
-  fans in - cover on - hole
-    3.8: 41.29 - 53C
-    4.0: 42.82 - 67C
-    4.3: 43.00 - 65C
-    4.3: 45.00 - 68C
-
-  fans in - cover on - hole - nylon screen
-    4.0: 43.22 - 70C
-    4.3: 45.45 - 72C
-
-  fans in - cover on - hole - wire screen
-    4.0: 43.02 - 65C
-    4.3: 45.90 - 67C
-
-
-windows
-  4670K
-    4.0: 43.02 - 65C
-    4.3: 45.90 - 67C
-
-  4790K
-    4.4: 53.97 - 79C
-    4.6: 57.95 - 83C
-
-linux
-  4670K - MSI Z87i
-    4.0: 48.59 - 65C
-
-  4790K - MSI Z87i
-    4.4: 58.97 - 80C
+4790K - Asus Z97i
+  4.8: 68.19 - 76.9C

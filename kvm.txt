@@ -80,7 +80,18 @@ virt-install -v \
   --network bridge=br0 \
   --import \
   --graphics vnc,listen=0.0.0.0 \
-#  --graphics vnc,listen=127.0.0.1 \
+  --noautoconsole
+
+  #  --graphics vnc,listen=127.0.0.1 \
+
+virt-install -v \
+  --name win2 \
+  --vcpus 2 \
+  --memory 4096 \
+  --disk path=/data/kvm/img/win2.img,size=40 \
+  --cdrom /data/kvm/iso/en_windows_10_consumer_editions_version_1803_updated_march_2018_x64_dvd_12063379.iso \
+  --network=default,model=e1000 \
+  --graphics vnc,listen=0.0.0.0 \
   --noautoconsole
 
 

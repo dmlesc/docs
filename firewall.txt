@@ -21,11 +21,11 @@ nano /etc/netplan/50-cloud-init.yaml
         dhcp6: no
         optional: true
 
-    bridges:
-      br0:
-        interfaces: [enp4s0f0, enp4s0f1, wlp6s0]
-        dhcp4: true
-        dhcp6: no
+  bridges:
+    br0:
+      interfaces: [enp4s0f0, enp4s0f1, wlp6s0]
+      dhcp4: true
+      dhcp6: no
 
 nano /lib/systemd/system/systemd-networkd-wait-online.service
   ExecStart=/lib/systemd/systemd-networkd-wait-online --timeout=1

@@ -1,0 +1,149 @@
+========
+ TARGET
+========
+
+apt install tgt
+
+zfs create vol0/iscsi1
+mkdir /vol0/iscsi1
+zfs set mountpoint=/vol0/iscsi1 vol0/iscsi1
+
+dd if=/dev/zero of=/vol0/iscsi1/disk bs=1M count=100K
+
+vim /etc/netplan/50-cloud-init.yaml
+    enp1s0:
+      dhcp4: no
+      dhcp6: no
+      addresses: [172.16.0.10/24]
+
+netplan generate
+netplan apply
+
+
+
+tgtadm --lld iscsi --op new --mode target --tid 1 -T iqn.2019-07.local.esc1:iscsi1
+tgtadm --lld iscsi --op new --mode logicalunit --tid 1 --lun 1 -b /vol0/iscsi1/disk --blocksize=4096
+tgtadm --lld iscsi --op new --mode logicalunit --tid 1 --lun 1 -b /vol0/iscsi1/disk
+tgtadm --lld iscsi --op bind --mode target --tid 1 -I 172.16.0.11
+
+tgtadm --lld iscsi --op show --mode target
+
+tgt-admin --dump | sudo tee /etc/tgt/conf.d/iscsi1.conf
+
+tgtadm --lld iscsi --op unbind --mode target --tid 1 -I 172.16.0.10
+tgtadm --lld iscsi --op delete --mode target --tid 1
+
+===========
+ INITIATOR
+===========
+
+vim /etc/netplan/50-cloud-init.yaml
+    enp1s0:
+      dhcp4: no
+      dhcp6: no
+      addresses: [172.16.0.11/24]
+
+netplan generate
+netplan apply
+
+vim /etc/hosts
+  172.16.0.10   esc1-iscsi
+
+apt install open-iscsi
+
+iscsiadm -m discovery -t st -p 172.16.0.10
+  172.16.0.10:3260,1 iqn.2019-07.local.esc1:iscsi1
+
+iscsiadm -m node --targetname iqn.2019-07.local.esc1:iscsi1 -p 172.16.0.10 -l
+  Logging in to [iface: default, target: iqn.2019-07.local.esc1:iscsi1, portal: 172.16.0.10,3260] (multiple)
+  Login to [iface: default, target: iqn.2019-07.local.esc1:iscsi1, portal: 172.16.0.10,3260] successful.
+
+cat /proc/partitions
+
+iscsiadm -m session
+iscsiadm -m session -o show -P 1
+
+lsblk --scsi
+  NAME HCTL       TYPE VENDOR   MODEL             REV TRAN
+  sda  4:0:0:0    disk ATA      LITEON CV8-8E128 10B  sata
+  sdb  6:0:0:1    disk IET      VIRTUAL-DISK     0001 iscsi
+
+iscsiadm -m node -T iqn.2019-07.local.esc1:iscsi1 -p esc1-iscsi -o new
+
+vim /etc/iscsi/iscsid.conf
+  node.startup = automatic
+
+fdisk /dev/sdb
+  ...
+mkfs.ext4 /dev/sdb1
+mkdir /data
+mount /dev/sdb1 /data
+
+blkid /dev/sdb1
+  /dev/sdb1: UUID="985b3565-7b39-4af8-b76c-cdd2d10dfbd1" TYPE="ext4" PARTUUID="999989bc-01"
+
+vim /etc/fstab
+  UUID=985b3565-7b39-4af8-b76c-cdd2d10dfbd1   /data   ext4   _netdev   0 0
+
+
+iscsiadm -m node -T iqn.2019-07.local.esc1:iscsi1 -p esc1-iscsi -u
+iscsiadm -m discoverydb -t sendtargets -p esc1-iscsi -o delete
+iscsiadm -m node -o delete -T iqn.2019-07.local.esc1:iscsi1 -p esc1-iscsi
+
+
+
+
+apt install iperf
+
+iperf -s
+iperf -c 172.16.0.10
+  ------------------------------------------------------------
+  Client connecting to 172.16.0.10, TCP port 5001
+  TCP window size: 85.0 KByte (default)
+  ------------------------------------------------------------
+  [  3] local 172.16.0.11 port 58662 connected with 172.16.0.10 port 5001
+  [ ID] Interval       Transfer     Bandwidth
+  [  3]  0.0-10.0 sec  11.0 GBytes  9.41 Gbits/sec
+
+
+
+#!/bin/bash
+
+# Since we're dealing with dd, abort if any errors occur
+set -e
+
+TEST_FILE=${1:-dd_obs_testfile}
+[ -e "$TEST_FILE" ]; TEST_FILE_EXISTS=$?
+TEST_FILE_SIZE=134217728
+
+# Header
+PRINTF_FORMAT="%8s : %s\n"
+printf "$PRINTF_FORMAT" 'block size' 'transfer rate'
+
+# Block sizes of 512b 1K 2K 4K 8K 16K 32K 64K 128K 256K 512K 1M 2M 4M 8M 16M 32M 64M
+for BLOCK_SIZE in 512 1024 2048 4096 8192 16384 32768 65536 131072 262144 524288 1048576 2097152 4194304 8388608 16777216 33554432 67108864
+do
+  # Calculate number of segments required to copy
+  COUNT=$(($TEST_FILE_SIZE / $BLOCK_SIZE))
+
+  if [ $COUNT -le 0 ]; then
+    echo "Block size of $BLOCK_SIZE estimated to require $COUNT blocks, aborting further tests."
+    break
+  fi
+
+  # Create a test file with the specified block size
+  DD_RESULT=$(dd if=/dev/zero of=$TEST_FILE bs=$BLOCK_SIZE count=$COUNT 2>&1 1>/dev/null)
+
+  # Extract the transfer rate from dd's STDERR output
+  TRANSFER_RATE=$(echo $DD_RESULT | \grep --only-matching -E '[0-9.]+ ([MGk]?B|bytes)/s(ec)?')
+
+  # Clean up the test file if we created one
+  [ $TEST_FILE_EXISTS -ne 0 ] && rm $TEST_FILE
+
+  # Output the result
+  printf "$PRINTF_FORMAT" "$BLOCK_SIZE" "$TRANSFER_RATE"
+done
+
+
+./dd_obs_test.sh disk
+./dd_obs_test.sh /dev/null
