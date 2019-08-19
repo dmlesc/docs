@@ -9,6 +9,7 @@ mkdir /vol0/iscsi1
 zfs set mountpoint=/vol0/iscsi1 vol0/iscsi1
 
 dd if=/dev/zero of=/vol0/iscsi1/disk bs=1M count=100K
+dd if=/dev/zero of=/vol0/iscsi2/disk bs=1M count=1M
 
 vim /etc/netplan/50-cloud-init.yaml
     enp1s0:
@@ -28,7 +29,7 @@ tgtadm --lld iscsi --op bind --mode target --tid 1 -I 172.16.0.11
 
 tgtadm --lld iscsi --op show --mode target
 
-tgt-admin --dump | sudo tee /etc/tgt/conf.d/iscsi1.conf
+tgt-admin --dump | sudo tee /etc/tgt/conf.d/iscsi.conf
 
 tgtadm --lld iscsi --op unbind --mode target --tid 1 -I 172.16.0.10
 tgtadm --lld iscsi --op delete --mode target --tid 1
@@ -86,9 +87,9 @@ vim /etc/fstab
   UUID=985b3565-7b39-4af8-b76c-cdd2d10dfbd1   /data   ext4   _netdev   0 0
 
 
-iscsiadm -m node -T iqn.2019-07.local.esc1:iscsi1 -p esc1-iscsi -u
+iscsiadm -m node -T iqn.2019-07.local.esc1:iscsi1 -p 172.16.0.10 -u
 iscsiadm -m discoverydb -t sendtargets -p esc1-iscsi -o delete
-iscsiadm -m node -o delete -T iqn.2019-07.local.esc1:iscsi1 -p esc1-iscsi
+iscsiadm -m node -o delete -T iqn.2019-07.local.esc1:iscsi1 -p 172.16.0.10
 
 
 

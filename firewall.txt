@@ -21,11 +21,11 @@ nano /etc/netplan/50-cloud-init.yaml
         dhcp6: no
         optional: true
 
-  bridges:
-    br0:
-      interfaces: [enp4s0f0, enp4s0f1, wlp6s0]
-      dhcp4: true
-      dhcp6: no
+    bridges:
+      br0:
+        interfaces: [enp4s0f0, enp4s0f1, wlp6s0]
+        dhcp4: true
+        dhcp6: no
 
 nano /lib/systemd/system/systemd-networkd-wait-online.service
   ExecStart=/lib/systemd/systemd-networkd-wait-online --timeout=1
@@ -49,8 +49,8 @@ chown dml:dml /vol0/kvm/img
 chown -R root:root /vol0/kvm/img
 mkdir /vol0/kvm/iso
 cd /vol0/kvm/iso
-wget http://mirrors.nycbug.org/pub/opnsense/releases/19.1/OPNsense-19.1-OpenSSL-dvd-amd64.iso.bz2
-bunzip2 OPNsense-19.1-OpenSSL-dvd-amd64.iso.bz2
+wget http://mirrors.nycbug.org/pub/opnsense/releases/19.7/OPNsense-19.7-OpenSSL-dvd-amd64.iso.bz2
+bunzip2 OPNsense-19.7-OpenSSL-dvd-amd64.iso.bz2
 
 apt install qemu-kvm libvirt-bin ubuntu-vm-builder virtinst
 
@@ -59,7 +59,17 @@ virt-install -v \
   --vcpus=2 \
   --memory=2048 \
   --disk path=/vol0/kvm/img/opnsense.img,bus=virtio,size=40 \
-  --cdrom=/vol0/kvm/iso/OPNsense-19.1-OpenSSL-dvd-amd64.iso \
+  --cdrom=/vol0/kvm/iso/OPNsense-19.7-OpenSSL-dvd-amd64.iso \
+  --network default,model=virtio \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole
+
+virt-install -v \
+  --name=opnsense \
+  --vcpus=2 \
+  --memory=2048 \
+  --disk path=/kvm/img/opnsense.img,bus=virtio,size=40 \
+  --cdrom=/vol0/kvm/iso/OPNsense-19.7-OpenSSL-dvd-amd64.iso \
   --network default,model=virtio \
   --graphics vnc,listen=0.0.0.0 \
   --noautoconsole
