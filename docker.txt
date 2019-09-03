@@ -100,3 +100,56 @@
 
   docker system prune -a
   docker volume prune -a
+
+
+
+
+============
+ prometheus
+============
+
+docker pull prom/prometheus
+docker run -p 9090:9090 prom/prometheus
+
+docker volume create prometheus-data
+
+docker run -d -p 9090:9090 \
+  --name prometheus \
+  --mount type=bind,source="$(pwd)"/prom/prometheus.yml,target=/etc/prometheus/prometheus.yml \
+  --mount source=prometheus-data,target=/etc/prometheus/data \
+  prom/prometheus
+
+docker run -d -p 9090:9090 \
+  --name prometheus \
+  -v "$(pwd)"/prom/prometheus.yml:/etc/prometheus/prometheus.yml \
+  -v prometheus-data:/etc/prometheus/data \
+  prom/prometheus
+
+docker stop prometheus
+docker start prometheus
+
+
+=========
+ grafana
+=========
+
+docker pull grafana/grafana
+
+docker run -d --name=grafana -p 3000:3000 grafana/grafana
+
+docker volume create grafana-storage
+
+docker run \
+  -d \
+  -p 3000:3000 \
+  --name=grafana \
+  -v grafana-storage:/var/lib/grafana \
+  grafana/grafana
+
+
+================
+ docker-compose
+================
+
+docker-compose up -d
+docker-compose down

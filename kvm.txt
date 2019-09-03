@@ -112,3 +112,14 @@ virsh detach-device win /vol0/kvm/usb/slim.xml
 
 virsh attach-device win /vol0/kvm/usb/mimosa.xml
 virsh detach-device win /vol0/kvm/usb/mimosa.xml
+
+
+virt-install -v \
+  --name win \
+  --vcpus 2 \
+  --memory 4096 \
+  --disk path=/vol0/kvm/img/win.img \
+  --network=default,model=e1000 \
+  --import \
+  --graphics vnc,listen=0.0.0.0 \
+  --noautoconsole
