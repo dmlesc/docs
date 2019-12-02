@@ -1,0 +1,20 @@
+=======
+ SMART
+=======
+
+https://help.ubuntu.com/community/Smartmontools
+
+apt install smartmontools --no-install-recommends
+
+wipefs -a /dev/sdb
+
+smartctl -i /dev/sda      # info
+smartctl -s on /dev/sda   # enable smart
+smartctl -c /dev/sda      # estimate time to complete test
+
+smartctl -l selftest /dev/sda   # test statistics
+smartctl -a -d ata /dev/sda     # detailed smart info
+
+smartctl -t <short|long|conveyance|select> /dev/sda  # test background mode
+
+smartctl -t short -C /dev/sda   # test foreground mode

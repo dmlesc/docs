@@ -1,0 +1,53 @@
+======
+ PERF
+======
+
+apt install sysstat
+
+iostat
+iostat -x
+iostat -c
+iostat -d
+iostat -dx
+iostat -k
+iostat -m
+iostat -k 2 3
+
+hdparm -t /dev/md0
+   /dev/md0:
+    Timing buffered disk reads: 2828 MB in  3.00 seconds = 942.17 MB/sec
+hdparm -t /dev/md1
+   /dev/md1:
+    Timing buffered disk reads: 530 MB in  3.00 seconds = 176.62 MB/sec
+hdparm -t /dev/md5
+   /dev/md5:
+    Timing buffered disk reads: 178 MB in  3.00 seconds =  59.26 MB/sec
+hdparm -t --direct /dev/md0
+   /dev/md0:
+    Timing O_DIRECT disk reads: 2492 MB in  3.00 seconds = 830.42 MB/sec
+hdparm -t --direct /dev/md1
+   /dev/md1:
+    Timing O_DIRECT disk reads: 538 MB in  3.00 seconds = 179.21 MB/sec
+hdparm -t --direct /dev/md5
+   /dev/md5:
+    Timing O_DIRECT disk reads: 184 MB in  3.02 seconds =  60.90 MB/sec
+
+hdparm -I /dev/sda-j
+hdparm -a /dev/sda-j
+   /dev/sda:
+    readahead     = 256 (on)
+hdparm -c /dev/sda
+
+hdparm -c /dev/sda
+   /dev/sda:
+    IO_support    =  1 (32-bit)
+
+hdparm -W /dev/sda
+   /dev/sda:
+    write-caching =  1 (on)
+
+apt install iotop
+
+
+apt install fio
+github.com/dmlesc/diks-perf

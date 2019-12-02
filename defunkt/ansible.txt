@@ -1,0 +1,25 @@
+=========
+ ansible
+=========
+
+apt install software-properties-common
+apt-add-repository ppa:ansible/ansible
+apt update
+apt install ansible
+
+Key
+  cd ~/.ssh
+  ssh-keygen
+  chmod 400 id_*
+
+Local
+  sudo visudo
+    dml ALL=(ALL) NOPASSWD: ALL
+  apt install python2.7
+  ln -s /usr/bin/python2.7 /usr/bin/python
+
+Remote
+  ssh-copy-id user@host
+
+ssh-agent bash
+ssh-add ~/.ssh/id_...
