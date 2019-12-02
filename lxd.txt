@@ -2,6 +2,36 @@
  lxd
 =====
 
+=======
+ 19.10
+=======
+
+lxc launch ubuntu:19.10 base -c security.nesting=true
+lxc exec base bash
+
+adduser dml
+visudo
+  dml ALL=(ALL) NOPASSWD: ALL
+deluser ubuntu --remove-home
+su - dml
+mkdir .ssh
+cd .ssh
+nano authorized_keys
+  [put public key]
+chmod 600 authorized_keys
+exit
+
+[ install docker ]
+
+lxc copy base lxd1 --container-only -c security.nesting=true
+lxc start lxd1
+lxc exec lxd1 bash
+
+
+=======
+ 18.04
+=======
+
 apt remove --purge lxd* lxc*
 snap install lxd
 lxd --version
@@ -11,7 +41,7 @@ lxd init
 
 lxc profile device set default root size 20GB
 
-lxc launch ubuntu:18.04 base
+lxc launch ubuntu:18.04 base -c security.nesting=true
 lxc config set base limits.cpu 2
 lxc config set base limits.memory 2GB
 lxc exec base bash

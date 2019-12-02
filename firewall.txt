@@ -56,8 +56,8 @@ apt install qemu-kvm libvirt-bin ubuntu-vm-builder virtinst
 
 virt-install -v \
   --name=opnsense \
-  --vcpus=2 \
-  --memory=2048 \
+  --vcpus=4 \
+  --memory=4096 \
   --disk path=/vol0/kvm/img/opnsense.img,bus=virtio,size=40 \
   --cdrom=/vol0/kvm/iso/OPNsense-19.7-OpenSSL-dvd-amd64.iso \
   --network default,model=virtio \
@@ -151,14 +151,14 @@ virsh edit opnsense
 
 nano /etc/netplan/50-cloud-init.yaml
       ...
-      enp3s0f0:
-        dhcp4: true
-        dhcp6: no
-        optional: true
-      enp3s0f1:
-        dhcp4: true
-        dhcp6: no
-        optional: true
+    enp3s0f0:
+      dhcp4: true
+      dhcp6: no
+      optional: true
+    enp3s0f1:
+      dhcp4: true
+      dhcp6: no
+      optional: true
       ...
 
     bridges:
@@ -170,22 +170,30 @@ reboot
 
 https://10.0.0.1/
   System
-    Firmware > Updates > Check for updates
-      Update now
+    Firmware
+      Updates > Check for updates
+        Update now
 
-    Plugins
-      os-theme-rebellion > Install
+      Plugins
+        os-theme-rebellion > Install
 
     Settings > General
       Theme: rebellion
+
+  Services
+    Unbound DNS
+      General
+        Network Interfaces: LAN
+        [*] Register DHCP leases
+
 
 [ install node_exporter ]
 
 [ create base lxd container ]
 
-lxc copy base mon0 --container-only -c security.nesting=true
-lxc start mon0
-lxc exec mon0 bash
+lxc copy base lxd0 --container-only -c security.nesting=true
+lxc start lxd0
+lxc exec lxd0 bash
 
 deluser ubuntu --remove-home
 nano /etc/hosts
@@ -193,19 +201,19 @@ nano /etc/hosts
 
 exit
 
-ssh mon0
+ssh lxd0
 git clone https://github.com/dmlesc/c0mp0ze.git
-cd c0mp0ze/m0n1t0r
-nano docker-compose
-    extra_hosts:
-    - "esc0:10.0.0.11"
+cd c0mp0ze
 
-nano prometheus/prometheus.yml
+[ run fluentd ]
+[ run elasticstack ]
+[ run prometheus ]
+[ run squid ]
+
+nano prometheus.yml
         - esc0:9100
 
-docker-compose up -d
-
-http://mon0:3000
+http://lxd0:3000
   Configuration > API Keys > +New API Key
     Key name: admin
     Role: Admin

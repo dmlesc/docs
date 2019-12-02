@@ -2,6 +2,33 @@
  installation
 ==============
 
+=======
+ 19.10
+=======
+
+sudo apt install docker.io
+sudo usermod -aG docker dml
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+sudo su -
+systemctl stop docker
+cp -au /var/lib/docker /var/lib/docker.bk
+rm -rf /var/lib/docker/*
+zfs create vol0/docker
+zfs set mountpoint=/var/lib/docker vol0/docker
+nano /etc/docker/daemon.json
+  {
+    "storage-driver": "zfs"
+  }
+systemctl start docker
+docker info
+
+=======
+ 18.04
+=======
+
   https://docs.docker.com/install/linux/docker-ce/ubuntu
 
   apt remove docker docker-engine docker.io
@@ -15,7 +42,7 @@
   docker --version
     Docker version 18.09.3, build 774a1f4
 
-  curl -L "https://github.com/docker/compose/releases/download/1.23.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
   chmod +x /usr/local/bin/docker-compose
   docker-compose --version
     docker-compose version 1.23.2, build 1110ad01

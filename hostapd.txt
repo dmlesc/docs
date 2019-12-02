@@ -42,6 +42,7 @@ nano /etc/hostapd/hostapd.conf
   macaddr_acl=0
   ieee80211n=1
   ht_capab=[HT40+][SHORT-GI-20][SHORT-GI-40][TX-STBC][RX-STBC1][DSSS_CK-40][LDPC][MAX-AMSDU-7935]
+  #ht_capab=[HT40+][SHORT-GI-20][SHORT-GI-40][TX-STBC][RX-STBC1][DSSS_CK-40][MAX-AMSDU-3839]
   auth_algs=1
   wpa=2
   wpa_key_mgmt=WPA-PSK
