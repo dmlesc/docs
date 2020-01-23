@@ -1,16 +1,9 @@
 
 
 alias ll='ls -alh'
-
 alias omx='omxplayer -o hdmi $1'
 
 alias dlf='docker logs $1 -f'
 alias dps='docker ps'
 
 alias eh='sudo vim /etc/hosts'
-
-
-
-VDCLPTOC8PTO
-
-charlotteshit

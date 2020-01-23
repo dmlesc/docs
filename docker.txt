@@ -25,6 +25,39 @@ nano /etc/docker/daemon.json
 systemctl start docker
 docker info
 
+
+=========
+ raspian
+=========
+
+sudo apt update
+sudo apt upgrade
+sudo apt autoremove
+sudo apt install raspberrypi-kernel raspberrypi-kernel-headers
+curl -sSL https://get.docker.com | sh
+sudo usermod -aG docker dml
+sudo pip3 install docker-compose
+
+mkdir /data
+blkid
+nano /etc/fstab
+  UUID=XXX  /data  auto  nosuid,nodev,nofail  0 0
+mount -a
+mkdir /data/docker
+systemctl stop docker
+mv /var/lib/docker/* /data/docker
+rm -rf /var/lib/docker
+ln -s /data/docker /var/lib/docker
+systemctl start docker
+
+sudo dphys-swapfile swapoff
+sudo nano /etc/dphys-swapfile
+  CONF_SWAPFILE=/data/swap
+  CONF_SWAPSIZE=1000
+sudo dphys-swapfile setup
+sudo dphys-swapfile swapon
+
+
 =======
  18.04
 =======
@@ -48,50 +81,6 @@ docker info
     docker-compose version 1.23.2, build 1110ad01
 
   usermod -aG docker dml
-
-
-=======
- build
-=======
-
-  Dockerfile
-    # Use an official Python runtime as a parent image
-    FROM python:2.7-slim
-
-    # Set the working directory to /app
-    WORKDIR /app
-
-    # Copy the current directory contents into the container at /app
-    COPY . /app
-
-    # Install any needed packages specified in requirements.txt
-    RUN pip install --trusted-host pypi.python.org -r requirements.txt
-
-    # Make port 80 available to the world outside this container
-    EXPOSE 80
-
-    # Define environment variable
-    ENV NAME World
-
-    # Run app.py when the container launches
-    CMD ["python", "app.py"]
-
-
-  docker build -t test_app .
-  docker run -p 4000:80 test_app
-
-  http://docker0:4000/
-
-  docker run -d -p 4000:80 test_app
-
-  docker login
-
-  # docker tag image username/repository:tag
-  # docker push username/repository:tag
-  # docker run -p 4000:80 username/repository:tag
-
-  docker tag test_app dmlesc/test_app:part2
-  docker push dmlesc/test_app:part2
 
 
 =====
@@ -127,56 +116,3 @@ docker info
 
   docker system prune -a
   docker volume prune -a
-
-
-
-
-============
- prometheus
-============
-
-docker pull prom/prometheus
-docker run -p 9090:9090 prom/prometheus
-
-docker volume create prometheus-data
-
-docker run -d -p 9090:9090 \
-  --name prometheus \
-  --mount type=bind,source="$(pwd)"/prom/prometheus.yml,target=/etc/prometheus/prometheus.yml \
-  --mount source=prometheus-data,target=/etc/prometheus/data \
-  prom/prometheus
-
-docker run -d -p 9090:9090 \
-  --name prometheus \
-  -v "$(pwd)"/prom/prometheus.yml:/etc/prometheus/prometheus.yml \
-  -v prometheus-data:/etc/prometheus/data \
-  prom/prometheus
-
-docker stop prometheus
-docker start prometheus
-
-
-=========
- grafana
-=========
-
-docker pull grafana/grafana
-
-docker run -d --name=grafana -p 3000:3000 grafana/grafana
-
-docker volume create grafana-storage
-
-docker run \
-  -d \
-  -p 3000:3000 \
-  --name=grafana \
-  -v grafana-storage:/var/lib/grafana \
-  grafana/grafana
-
-
-================
- docker-compose
-================
-
-docker-compose up -d
-docker-compose down
