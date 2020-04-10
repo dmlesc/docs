@@ -1,0 +1,12 @@
+sudo wget -qnc https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/nordvpn-release_1.0.0_all.deb
+sudo apt install -f ./nordvpn-release_1.0.0_all.deb
+sudo apt update
+sudo apt install nordvpn
+
+nordvpn login
+nordvpn connect
+nordvpn disconnect
+
+host myip.opendns.com resolver1.opendns.com
+dig +short myip.opendns.com @resolver1.opendns.com
+curl ifconfig.io

@@ -23,3 +23,15 @@ docker rm $(docker ps -a -q)
 
 
 HandBrakeCLI -Z "Apple 720p30 Surround" -i v.mkv -o test.m4v
+
+
+
+x11
+
+sudo nano
+sudo apt install gstreamer1.0-libav
+sudo apt-get install gstreamer1.0-plugins-ugly
+sudo apt install paprefs
+paprefs
+  Network Server
+    [*] Enable network access to local sound devices
