@@ -7,3 +7,5 @@ alias dlf='docker logs $1 -f'
 alias dps='docker ps'
 
 alias eh='sudo vim /etc/hosts'
+
+alias py='/usr/bin/python3'
