@@ -1,0 +1,27 @@
+
+ssh-copy-id
+
+sudo visudo
+  dml ALL=(ALL) NOPASSWD: ALL
+
+sudo apt install zsh
+sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+
+sudo apt install zfsutils-linux
+sudo zpool create -f vol0 /dev/disk/by-id/ata-...
+sudo zfs set compression=lz4 vol0
+
+sudo apt install docker.io
+sudo usermod -aG docker dml
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+wget https://raw.githubusercontent.com/dmlesc/esc_scripts/master/node_exporter.sh
+sudo bash node_exporter.sh
+
+wget https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/nordvpn-release_1.0.0_all.deb
+sudo apt install -f ./nordvpn-release_1.0.0_all.deb
+sudo apt update
+sudp apt install nordvpn
+curl ifconfig.io
