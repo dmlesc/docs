@@ -1,0 +1,118 @@
+==============
+ installation
+==============
+
+=======
+ 20.04
+=======
+
+sudo apt install docker.io
+sudo usermod -aG docker dml
+
+sudo curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+sudo su -
+systemctl stop docker
+cp -au /var/lib/docker /var/lib/docker.bk
+rm -rf /var/lib/docker/*
+zfs create vol0/docker
+zfs set mountpoint=/var/lib/docker vol0/docker
+nano /etc/docker/daemon.json
+  {
+    "storage-driver": "zfs"
+  }
+systemctl start docker
+docker info
+
+
+=========
+ raspian
+=========
+
+sudo apt update
+sudo apt upgrade
+sudo apt autoremove
+sudo apt install raspberrypi-kernel raspberrypi-kernel-headers
+curl -sSL https://get.docker.com | sh
+sudo usermod -aG docker dml
+sudo pip3 install docker-compose
+
+mkdir /data
+blkid
+nano /etc/fstab
+  UUID=XXX  /data  auto  nosuid,nodev,nofail  0 0
+mount -a
+mkdir /data/docker
+systemctl stop docker
+mv /var/lib/docker/* /data/docker
+rm -rf /var/lib/docker
+ln -s /data/docker /var/lib/docker
+systemctl start docker
+
+sudo dphys-swapfile swapoff
+sudo nano /etc/dphys-swapfile
+  CONF_SWAPFILE=/data/swap
+  CONF_SWAPSIZE=1000
+sudo dphys-swapfile setup
+sudo dphys-swapfile swapon
+
+
+=======
+ 18.04
+=======
+
+  https://docs.docker.com/install/linux/docker-ce/ubuntu
+
+  apt remove docker docker-engine docker.io
+  apt install apt-transport-https ca-certificates curl software-properties-common
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  apt-key fingerprint 0EBFCD88
+
+  add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  apt update
+  apt install docker-ce
+  docker --version
+    Docker version 18.09.3, build 774a1f4
+
+  curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  chmod +x /usr/local/bin/docker-compose
+  docker-compose --version
+    docker-compose version 1.23.2, build 1110ad01
+
+  usermod -aG docker dml
+
+
+=====
+ LXD
+=====
+
+  lxc copy base docker0 --container-only -c security.nesting=true
+  lxc config set docker0 limits.cpu 2
+  lxc config set docker0 limits.memory 2GB
+  lxc start docker0
+  lxc exec docker0 bash
+
+  [install docker]
+
+  mkdir /etc/systemd/system/containerd.service.d/
+  cd /etc/systemd/system/containerd.service.d/
+  nano override.conf
+    [Service]
+    ExecStartPre=
+
+  systemctl daemon-reload
+  systemctl restart containerd.service
+  systemctl restart docker.service
+
+
+==========
+ commands
+==========
+
+  docker stop $(docker ps -a -q)
+  docker rm $(docker ps -a -q)
+  docker container rm $(docker container ls -a -q)
+
+  docker system prune -a
+  docker volume prune -a
