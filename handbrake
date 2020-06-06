@@ -10,10 +10,8 @@ Dockerfile
   RUN mkdir /data
   WORKDIR /data
 
-mkdir data
-
 docker build -t handbrake .
-docker run -it -v "$(pwd)"/data:/data handbrake /bin/bash
+docker run -it --rm -v "$(pwd)":/data handbrake /bin/bash
 
 HandBrakeCLI -Z "Apple 720p30 Surround" -i test.mp4 -o test.m4v
 HandBrakeCLI -Z "Apple 1080p30 Surround" -i test.mp4 -o test.m4v
@@ -24,14 +22,4 @@ docker rm $(docker ps -a -q)
 
 HandBrakeCLI -Z "Apple 720p30 Surround" -i v.mkv -o test.m4v
 
-
-
-x11
-
-sudo nano
-sudo apt install gstreamer1.0-libav
-sudo apt-get install gstreamer1.0-plugins-ugly
-sudo apt install paprefs
-paprefs
-  Network Server
-    [*] Enable network access to local sound devices
+HandBrakeCLI -Z "Apple 720p30 Surround" -i ww8.mkv -o ww8.m4v
