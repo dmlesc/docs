@@ -2,6 +2,79 @@
  wifi
 ======
 
+apt install network-manager
+nmcli d
+nmcli r wifi on
+nmcli d wifi connect apname password XXX
+nmcli --ask d wifi connect apname
+
+nmcli dev wifi list
+nmcli con show --active
+
+sudo nmcli con edit apname
+save persistent
+
+
+
+=============
+ wifi router
+=============
+
+sudo su -
+
+nano /etc/sysctl.conf
+  net.ipv4.ip_forward=1
+sysctl -p
+
+nano /etc/network/if-pre-up.d/iptables
+  #!/bin/sh
+  /sbin/iptables-restore < /etc/network/iptables
+
+chmod 755 /etc/network/if-pre-up.d/iptables
+
+nano /etc/network/iptables
+  *nat
+  :PREROUTING ACCEPT [0:0]
+  :INPUT ACCEPT [0:0]
+  :OUTPUT ACCEPT [0:0]
+  :POSTROUTING ACCEPT [0:0]
+
+  # wlp4s0 is WAN interface
+  -A POSTROUTING -o wlp4s0 -j MASQUERADE
+
+  COMMIT
+
+  *filter
+  :INPUT ACCEPT [0:0]
+  :FORWARD ACCEPT [0:0]
+  :OUTPUT ACCEPT [0:0]
+
+  # Service rules
+  -A INPUT -j DROP
+
+  # Forwarding rules
+  -A FORWARD -j DROP
+
+  COMMIT
+
+/etc/network/if-pre-up.d/iptables
+
+
+
+
+iptables -t nat -A POSTROUTING -o wlp4s0 -j MASQUERADE
+
+
+
+
+
+
+
+
+
+
+
+
 apt install wpasupplicant wireless-tools
 iwconfig
 wlp6s0    IEEE 802.11  ESSID:off/any

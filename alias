@@ -9,3 +9,5 @@ alias dps='docker ps'
 alias eh='sudo vim /etc/hosts'
 
 alias py='/usr/bin/python3'
+
+alias dfh='du -h --max-depth=1'

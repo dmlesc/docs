@@ -1,0 +1,13 @@
+
+
+docker build -t transmission .
+mkdir dl
+
+docker run -it --rm -d --name transmission \
+  -v /dl:/var/lib/transmission-daemon/downloads/ \
+  -p 9091:9091 \
+  transmission
+
+
+sed -i 's/"rpc-whitelist-enabled": true/"rpc-whitelist-enabled": false/' /etc/transmission-daemon/settings.json
+grep whitelist /etc/transmission-daemon/settings.json

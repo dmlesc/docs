@@ -1,0 +1,129 @@
+
+https://learn.adafruit.com/circuitpython-on-raspberrypi-linux/installing-circuitpython-on-raspberry-pi
+
+sudo pip3 install --upgrade setuptools
+
+sudo update-alternatives --install /usr/bin/python python $(which python2) 1
+sudo update-alternatives --install /usr/bin/python python $(which python3) 2
+sudo update-alternatives --config python
+
+sudo apt install -y python-smbus
+sudo apt install -y i2c-tools
+
+sudo raspi-config
+  3 Interface Options
+    P4 SPI
+      Yes, Ok
+    P5 I2C
+      Yes, Ok
+  Finish
+
+sudo reboot
+
+ls /dev/i2c* /dev/spi*
+  /dev/i2c-1  /dev/spidev0.0  /dev/spidev0.1
+
+sudo i2cdetect -y 1
+
+sudo pip3 install RPI.GPIO
+sudo pip3 install adafruit-blinka
+sudo pip3 install adafruit-circuitpython-ahtx0
+
+
+wget https://github.com/adafruit/Adafruit_CircuitPython_Bundle/releases/download/20201203/adafruit-circuitpython-bundle-6.x-mpy-20201203.zip
+unzip adafruit-circuitpython-bundle-6.x-mpy-20201203.zip
+sudo cp -r adafruit-circuitpython-bundle-6.x-mpy-20201203/adafruit_bus_device/ /
+sudo cp adafruit-circuitpython-bundle-6.x-mpy-20201203/lib/adafruit_ahtx0.mpy /
+
+
+sudo reboot
+
+=======
+ AHT20
+=======
+
+print(dir(adafruit_ahtx0.AHTx0))
+  'calibrate', 'relative_humidity', 'reset', 'status', 'temperature'
+
+
+========
+ MS8607
+========
+
+latest adafruit-circuitpython-bundle
+
+sudo pip3 install adafruit-circuitpython-ms8607
+
+inHg = 0.02952998751 * hPa
+
+
+========
+ BME680
+========
+
+sudo pip3 install adafruit-circuitpython-bme680
+
+sudo cp adafruit-circuitpython-bundle-6.x-mpy-20201203/lib/adafruit_bme680.mpy /
+
+=======
+ samba
+=======
+
+sudo apt install samba
+sudo nano /etc/samba/smb.conf
+[global]
+  workgroup = ASDF
+  server string = %h server (samba)
+  dns proxy = no
+  log file = /var/log/samba/log.%m
+  max log size = 1000
+  syslog = 0
+  panic action = /usr/share/samba/panic-action %d
+  server role = standalone server
+  passdb backend = tdbsam
+  obey pam restrictions = yes
+  unix password sync = yes
+  passwd program = /usr/bin/passwd %u
+  passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+  pam password change = no
+  map to guest = bad user
+  usershare allow guests = no
+
+[git]
+  path = /home/pi/git
+  valid users = pi
+  browsable = no
+  guest ok = no
+  writable = yes
+  create mask = 0644
+
+smbpasswd -a pi
+
+sudo systemctl restart nmbd.service && sudo systemctl restart smbd.service
+
+
+========
+ nodejs
+========
+
+curl -sL https://deb.nodesource.com/setup_15.x | bash -
+apt install -y nodejs
+
+
+=========
+ systemd
+=========
+
+sudo cp ~/git/sensor_exporter/systemd/sensor_exporter.service /lib/systemd/system/
+sudo systemctl enable sensor_exporter
+sudo systemctl daemon-reload
+sudo systemctl start sensor_exporter
+
+
+=========
+ observe
+=========
+
+cd ~/git/sensor_exporter/observe
+sudo chown nobody:nogroup data_prometheus
+sudo chown 472:472 data_grafana

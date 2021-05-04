@@ -3,10 +3,13 @@ sudo apt install -f ./nordvpn-release_1.0.0_all.deb
 sudo apt update
 sudo apt install nordvpn
 
+nordvpn set technology NordLynx
+nordvpn set technology OpenVPN
 nordvpn login
 nordvpn connect
 nordvpn disconnect
 
-host myip.opendns.com resolver1.opendns.com
-dig +short myip.opendns.com @resolver1.opendns.com
+nordvpn countries
+nordvpn c Spain
+
 curl ifconfig.io
