@@ -1,0 +1,84 @@
+
+
+sudo apt-get install x264
+
+Render
+  Quality: High
+  Container format: Matroska
+  Codec:
+    x264 > Advanced
+      Encoding pass/type: Constant Quantizer
+      Constant Quantizer: 18
+      Psychovisual tuning preset: Animation
+
+
+
+;FFMETADATA1
+title=dbs_041-046
+
+[CHAPTER]
+TIMEBASE=1/1000
+START=0
+END=1151858
+title=dbs_041
+
+[CHAPTER]
+TIMEBASE=1/1000
+START=1151859
+END=2288785
+title=dbs_042
+
+[CHAPTER]
+TIMEBASE=1/1000
+START=2288786
+END=3443647
+title=dbs_043
+
+[CHAPTER]
+TIMEBASE=1/1000
+START=3443648
+END=4572441
+title=dbs_044
+
+[CHAPTER]
+TIMEBASE=1/1000
+START=4572442
+END=5713289
+title=dbs_045
+
+[CHAPTER]
+TIMEBASE=1/1000
+START=5713290
+END=6836204
+title=dbs_046
+
+[CHAPTER]
+TIMEBASE=1/1000
+START=
+END=
+title=dbs_047
+
+[CHAPTER]
+TIMEBASE=1/1000
+START=
+END=
+title=dbs_048
+
+[CHAPTER]
+TIMEBASE=1/1000
+START=
+END=
+title=dbs_049
+
+[CHAPTER]
+TIMEBASE=1/1000
+START=
+END=
+title=dbs_050
+
+[STREAM]
+title=dbs_041-046
+
+
+
+ffmpeg -i dbs_021-030.m4v -i dbs_021-030.chaps -map_metadata 1 -codec copy chaps/dbs_021-030.m4v

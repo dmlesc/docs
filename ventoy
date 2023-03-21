@@ -1,0 +1,12 @@
+
+
+wget https://github.com/ventoy/Ventoy/releases/download/v1.0.51/ventoy-1.0.51-linux.tar.gz
+tar xvzf ventoy-1.0.51-linux.tar.gz
+cd ventory-1.0.51
+sudo ./Ventoy2Disk.sh -I -L stick0 /dev/sdb
+sudo ./Ventoy2Disk.sh -I -L stick0 -r 50000 /dev/sdb
+
+sudo ./Ventoy2Disk.sh -I -L stick0_boot -r 450000 /dev/sdb
+
+
+copy ventoy to stick0

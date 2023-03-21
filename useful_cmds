@@ -1,3 +1,41 @@
 
 
 git remote set-url origin git@github.com:dmlesc/repo.git
+
+
+apt install iftop
+iftop -i enp2s0
+
+
+ip route show
+systemd-resolve --status
+
+
+ufw status
+ufw status verbose
+
+
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -t nat -D POSTROUTING 1
+
+iptables -F INPUT
+iptables -F OUTPUT
+iptables -F FORWARD
+
+iptables -F
+
+iptables -nL
+iptables -t nat -L -v
+
+
+rsync -rv --delete --update /media/dml/ssd0/backup /media/dml/backup
+
+
+sh <(curl -sSf https://downloads.nordcdn.com/apps/linux/install.sh)
+nordvpn login
+nordvpn connect
+
+
+dhcp-lease-list --lease /var/lib/dhcp/dhcpd.leases
