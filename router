@@ -60,12 +60,12 @@ systemctl enable ufw.service
 
 apt install isc-dhcp-server
 nano /etc/dhcp/dhcpd.conf
-  subnet 10.0.0.0 netmask 255.255.255.0 {
-    range 10.0.0.10 10.0.0.20;
-    option routers 10.0.0.1;
-    option domain-name-servers 8.8.8.8, 8.8.4.4;
-    option domain-name "dmlesc.me";
-  }
+subnet 10.0.0.0 netmask 255.255.255.0 {
+  range 10.0.0.10 10.0.0.20;
+  option routers 10.0.0.1;
+  option domain-name-servers 8.8.8.8, 8.8.4.4;
+  option domain-name "dmlesc.me";
+}
 
 nano /etc/default/isc-dhcp-server
   INTERFACESv4="br0"
