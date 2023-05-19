@@ -22,8 +22,8 @@ network:
       dhcp4: true
       dhcp6: no
       access-points:
-        dorothea_5:
-          password: WelovecatsverymucH
+        ap_name:
+          password: password
   ethernets:
     eth0:
       dhcp4: true
@@ -35,6 +35,32 @@ network:
       addresses:
        - 10.0.0.1/24
   version: 2
+
+cat >> /etc/netplan/00-router-config.yaml <<EOF
+network:
+  wifis:
+    wlp4s0:
+      dhcp4: true
+      dhcp6: no
+      access-points:
+        ap_name:
+          password: password
+  ethernets:
+    enp1s0:
+      dhcp4: true
+      dhcp6: no
+      optional: true
+    enp3s0:
+      dhcp4: true
+      dhcp6: no
+      optional: true
+  bridges:
+    br0:
+      interfaces: [enp1s0, enp3s0]
+      addresses:
+       - 10.0.0.1/24
+  version: 2
+EOF
 
 netplan generate
 netplan apply
@@ -100,8 +126,8 @@ network:
       dhcp4: true
       dhcp6: no
       access-points:
-        dorothea_5:
-          password: WelovecatsverymucH
+        ap_name:
+          password: password
   ethernets:
     enp2s0:
       dhcp4: true
@@ -161,6 +187,8 @@ systemctl enable isc-dhcp-server
 wget -O /usr/local/etc/oui.txt http://standards-oui.ieee.org/oui.txt
 
 dhcp-lease-list --lease /var/lib/dhcp/dhcpd.leases
+
+
 
 
 cd ~/git
@@ -254,3 +282,43 @@ rsn_pairwise=CCMP
 
 
 sudo systemctl reboot
+
+
+=====
+ Kea
+=====
+
+apt update && apt -y install kea
+
+sed -i 's|dhcp6=yes|dhcp6=no|' /etc/kea/keactrl.conf
+sed -i 's|ctrl_agent=yes|ctrl_agent=no|' /etc/kea/keactrl.conf
+
+mv /etc/kea/kea-dhcp4.conf /etc/kea/kea-dhcp4.conf.bak
+cat >> /etc/kea/kea-dhcp4.conf <<EOF
+{
+    "Dhcp4": {
+        "interfaces-config": {
+            "interfaces": [ "br0" ],
+            "dhcp-socket-type": "raw"
+        },
+        "valid-lifetime": 4000,
+        "renew-timer": 1000,
+        "rebind-timer": 2000,
+        "subnet4": [{
+           "pools": [ { "pool": "10.0.0.10-10.0.0.20" } ],
+           "subnet": "10.0.0.0/24"
+        }],
+
+       # Now loggers are inside the DHCPv4 object.
+       "loggers": [{
+            "name": "*",
+            "severity": "DEBUG"
+        }]
+    }
+}
+EOF
+
+systemctl enable kea-dhcp4-server
+systemctl disable kea-dhcp6-server
+systemctl disable kea-dhcp-ddns-server
+systemctl enable kea-ctrl-agent

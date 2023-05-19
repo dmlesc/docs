@@ -39,3 +39,30 @@ nordvpn connect
 
 
 dhcp-lease-list --lease /var/lib/dhcp/dhcpd.leases
+
+smbclient //10.0.0.14/files -U files
+
+apt install zfsutils-linux
+
+lxd init
+  Path to the existing block device: /dev/nvme0n1    
+  Name of the existing bridge or host interface: br0
+
+lxc list
+lxc storage list
+lxc network list
+
+brctl show
+
+zfs list
+zfs get compression default
+zfs get compressratio
+zpool list
+zpool status
+
+
+lxc launch ubuntu:22.04 samba
+lxc info samba
+lxc info samba --show-log
+
+lxc exec samba -- bash
