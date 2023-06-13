@@ -1,0 +1,81 @@
+# WireGuard
+
+apt install wireguard
+
+
+wg genkey > private
+ip link add wg0 type wireguard
+ip a add 10.0.0.5/24 dev wg0
+wg set wg0 private-key ./private
+ip link set wg0 up
+
+wg set wg0 peer o8mZWGa606doE3ip4n41O5ZiZgORykw2ljtLOyFr/HY= allowed-ips 10.0.0.6/32 endpoint 192.168.50.122:59597
+
+ufw allow 51820
+
+=======
+ peerA
+=======
+
+/etc/netplan/wireguard.yaml
+network:
+  tunnels:
+    wg0:
+      mode: wireguard
+      port: 51820
+      key: UMjI9WbobURkCDh2RT8SRM5osFI7siiR/sPOuuTIDns=
+      addresses:
+        - 192.168.1.1/24
+      peers:
+        - allowed-ips: [192.168.1.2/32]
+          endpoint: 10.0.0.15:46034
+          keys:
+            public: 4mShR9T8FH4utkpM7KtdS5vsi5xbOvKJGnfqO721YXA=
+
+=======
+ peerB
+=======
+wg genkey > private
+wg pubkey < private
+ip link add wg0 type wireguard
+ip a add 192.168.1.2/24 dev wg0
+wg set wg0 private-key ./private
+ip link set wg0 up
+wg set wg0 peer EdNnZ1/2OJZ9HcScSVcwDVUsctCkKQ/xzjEyd3lZFFs= allowed-ips 192.168.1.1/32 endpoint 10.0.0.12:51820
+wg
+
+=====
+ ace
+=====
+network:
+  tunnels:
+    wg0:
+      mode: wireguard
+      port: 51820
+      key: sBdPZ0/4sK2Ktme3HV6bu7SJaitz6l1UanclJclEJWc=
+      addresses:
+        - 172.16.0.1/24
+      peers:
+        - allowed-ips: [172.16.0.2/32]
+          endpoint: 192.168.50.122:64325
+          keys:
+            public: o8mZWGa606doE3ip4n41O5ZiZgORykw2ljtLOyFr/HY=
+      routes:
+        - to: default
+          via: 10.0.0.1
+          metric: 100
+
+root@ace:/etc/netplan# cat 02-wireguard.yaml 
+network:
+  tunnels:
+    wg0:
+      mode: wireguard
+      port: 51820
+      key: sBdPZ0/4sK2Ktme3HV6bu7SJaitz6l1UanclJclEJWc=
+      addresses:
+        - 10.0.0.5/24
+      peers:
+        - allowed-ips: [10.0.0.6/32]
+          endpoint: 192.168.50.122:51820
+          keys:
+            public: o8mZWGa606doE3ip4n41O5ZiZgORykw2ljtLOyFr/HY=

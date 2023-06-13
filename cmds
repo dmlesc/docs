@@ -13,6 +13,7 @@ systemd-resolve --status
 
 ufw status
 ufw status verbose
+ufw status numbered
 
 
 iptables -P INPUT ACCEPT

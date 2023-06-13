@@ -1,3 +1,7 @@
+=======
+ macOS
+=======
+
 https://ubuntu.com/security/docker-images
 https://docs.docker.com/desktop/kubernetes/
 
@@ -36,3 +40,31 @@ microk8s kubectl logs pod/microbot-5fc567f454-4fg8j
 microk8s kubectl delete service microbot-service
 microk8s kubectl delete deployment.apps/microbot
 
+
+
+=====
+ ace
+=====
+
+lxc profile create microk8s
+wget https://raw.githubusercontent.com/ubuntu/microk8s/master/tests/lxc/microk8s-zfs.profile -O microk8s.profile
+cat microk8s.profile | lxc profile edit microk8s
+rm microk8s.profile
+
+lxc launch -p default -p microk8s ubuntu:22.04 mk8s0
+lxc exec mk8s0 -- bash
+
+snap install microk8s --classic --channel=1.27
+
+microk8s kubectl create deployment microbot --image=dontrebootme/microbot:v1
+cmicrok8s kubectl expose deployment microbot --type=NodePort --port=80 --name=microbot-service
+microk8s kubectl get service microbot-service
+
+curl 10.0.0.10:31529
+
+microk8s kubectl delete service microbot-service
+microk8s kubectl delete deployment.apps/microbot
+
+microk8s dashboard-proxy
+
+Dashboard will be available at https://127.0.0.1:10443
