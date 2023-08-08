@@ -40,6 +40,8 @@ microk8s kubectl logs pod/microbot-5fc567f454-4fg8j
 microk8s kubectl delete service microbot-service
 microk8s kubectl delete deployment.apps/microbot
 
+microk8s enable hostpath-storage
+kubectl get storageclass
 
 
 =====

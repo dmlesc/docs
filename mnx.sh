@@ -97,3 +97,35 @@ ufw allow from 10.0.0.0/24 to 10.0.0.1 port 53
 
 reboot
 
+
+# microk8s
+
+snap install microk8s --classic --channel=1.27
+
+microk8s start
+microk8s kubectl get all --all-namespaces
+microk8s enable dashboard
+microk8s kubectl describe secret -n kube-system microk8s-dashboard-token
+
+~/.ssh/config
+  Host mnx1
+    Hostname mnx1
+    LocalForward 10443 10.152.183.45:443
+    LocalForward  3000 127.0.0.1:3000 
+
+https://localhost:10443
+
+https://grafana.com/docs/helm-charts/
+
+
+sudo usermod -a -G microk8s dml
+mkdir ~/.kube
+chown -R dml ~/.kube
+newgrp microk8s
+
+echo 'alias kubectl="microk8s kubectl"' >> ~/.bashrc
+echo 'alias helm="microk8s helm"' >> ~/.bashrc
+source ~/.bashrc
+
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
